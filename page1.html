@@ -77,11 +77,11 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-10">
                 <div class="mbr-section-head align-center mb-4">
-                
+                <!--
                 <div class="text-center mb-3">
                     <a href="https://mega.nz/filerequest/hak9y06G87c" class="btn btn-primary btn-lg">Ανέβασμα Νέου Υλικού</a>
                 </div>
-
+                -->
                     <h3 class="mbr-section-title mb-0 mbr-fonts-style display-5"><strong>Μαθήματα ΠΣ ΠΑΔΑ :</strong></h3>
                     
                 </div>
@@ -100,26 +100,84 @@ function filterSubjects() {
   const accordions = document.querySelectorAll('#bootstrap-accordion_24 .card');
 
   accordions.forEach(card => {
-    const links = card.querySelectorAll('.panel-body a');
+    const panelBody = card.querySelector('.panel-body');
+    if (!panelBody) return;
+    
     let anyVisible = false;
+    
+    // Get all course links (excluding upload buttons)
+    const courseLinks = Array.from(panelBody.querySelectorAll('a')).filter(link => 
+      link.textContent.trim() !== 'Upload'
+    );
 
-    links.forEach(link => {
-      const text = removeDiacritics(link.textContent.toLowerCase());
+    courseLinks.forEach((courseLink, index) => {
+      const text = removeDiacritics(courseLink.textContent.toLowerCase());
       const match = text.includes(input);
 
-      // Show/hide the link
-      link.style.display = match ? 'block' : 'none';
-
-      // Hide/show the next sibling <br> if present (handle both element and text nodes)
-      let next = link.nextSibling;
-      while (next && next.nodeType === 3 && !next.textContent.trim()) {
-        // skip whitespace text nodes
-        next = next.nextSibling;
+      if (match) {
+        anyVisible = true;
+        // Show the course link
+        courseLink.style.display = '';
+        
+        // Show the upload button that follows this course
+        let next = courseLink.nextSibling;
+        while (next) {
+          if (next.nodeType === 1 && next.tagName === 'A' && next.textContent.trim() === 'Upload') {
+            next.style.display = '';
+            break;
+          }
+          next = next.nextSibling;
+        }
+        
+        // Show the <br> that follows this course (for next line)
+        next = courseLink.nextSibling;
+        while (next) {
+          if (next.nodeType === 1 && next.tagName === 'BR') {
+            next.style.display = '';
+            break;
+          }
+          next = next.nextSibling;
+        }
+        
+        // If this is not the first course, also show the preceding <br>
+        if (index > 0) {
+          let prev = courseLink.previousSibling;
+          while (prev) {
+            if (prev.nodeType === 1 && prev.tagName === 'BR') {
+              prev.style.display = '';
+              break;
+            }
+            prev = prev.previousSibling;
+          }
+        }
+      } else {
+        // Hide the course link
+        courseLink.style.display = 'none';
+        
+        // Hide the upload button that follows this course
+        let next = courseLink.nextSibling;
+        while (next) {
+          if (next.nodeType === 1 && next.tagName === 'A' && next.textContent.trim() === 'Upload') {
+            next.style.display = 'none';
+            break;
+          }
+          next = next.nextSibling;
+        }
       }
-      if (next && next.nodeType === 1 && next.tagName === 'BR') {
-        next.style.display = match ? 'inline' : 'none';
+    });
+    
+    // Handle <br> tags separately - hide them if the following course is hidden
+    const brTags = panelBody.querySelectorAll('br');
+    brTags.forEach(br => {
+      let nextCourse = br.nextSibling;
+      while (nextCourse) {
+        if (nextCourse.nodeType === 1 && nextCourse.tagName === 'A' && nextCourse.textContent.trim() !== 'Upload') {
+          // Found the next course link
+          br.style.display = nextCourse.style.display === 'none' ? 'none' : '';
+          break;
+        }
+        nextCourse = nextCourse.nextSibling;
       }
-      if (match) anyVisible = true;
     });
 
     // Show or hide the whole card depending on matches
@@ -140,12 +198,19 @@ function filterSubjects() {
                         </div>
                         <div id="collapse1_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
-                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/WuRgiB4J#UUwe9eLRJz3faQl-ygLypA" class="text-primary" target="_blank">Μαθηματική Ανάλυση I</a>
-<br><a href="https://mega.nz/folder/DyAHAAoB#i91zePQRe-ZFL950qs_TQg" class="text-primary" target="_blank">Γραμμική Άλγεβρα</a>
-<br><a href="https://mega.nz/folder/CqIC2TpK#4Z2T6gnrHrvpLeZO6guDww" class="text-primary" target="_blank">Εισαγωγή στην Επιστήμη των Υπολογιστών</a>
-<br><a href="https://mega.nz/folder/rnAhQZba#BuqOCcP0ZH5XqHau2nLTLQ" class="text-primary" target="_blank">Προγραμματισμός Υπολογιστών</a>
-<br><a href="https://mega.nz/folder/qyRF3AYb#A2LJ9ZDixYXUcq_GcYQWpg" class="text-primary" target="_blank">Διακριτά Μαθηματικά</a>
-<br><a href="https://mega.nz/folder/vioyHaZI#kGmWhArv3HuAMHzJc6UgmQ" class="text-primary" target="_blank">Φυσική</a></p>
+                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/WuRgiB4J#UUwe9eLRJz3faQl-ygLypA" class="text-primary" target="_blank">Μαθηματική Ανάλυση I</a><a href="https://mega.nz/filerequest/GTdDUDAoXNc" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/DyAHAAoB#i91zePQRe-ZFL950qs_TQg" class="text-primary" target="_blank">Γραμμική Άλγεβρα</a><a href="https://mega.nz/filerequest/lG1T8yWUy-o" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+
+<br><a href="https://mega.nz/folder/CqIC2TpK#4Z2T6gnrHrvpLeZO6guDww" class="text-primary" target="_blank">Εισαγωγή στην Επιστήμη των Υπολογιστών</a><a href="https://mega.nz/filerequest/Kyk-I8NGd9I" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/rnAhQZba#BuqOCcP0ZH5XqHau2nLTLQ" class="text-primary" target="_blank">Προγραμματισμός Υπολογιστών</a><a href="https://mega.nz/filerequest/k3uvfw4Lm5U" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/qyRF3AYb#A2LJ9ZDixYXUcq_GcYQWpg" class="text-primary" target="_blank">Διακριτά Μαθηματικά</a><a href="https://mega.nz/filerequest/1fQbQyyvaSQ" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/vioyHaZI#kGmWhArv3HuAMHzJc6UgmQ" class="text-primary" target="_blank">Φυσική</a><a href="https://mega.nz/filerequest/7YrG7j6FoKw" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a></p>
                             </div>
                         </div>
                     </div>
@@ -158,12 +223,18 @@ function filterSubjects() {
                         </div>
                         <div id="collapse2_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
-                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/32g11ThZ#1uorhtloYcWtMR7y45awmQ" class="text-primary" target="_blank">Σχεδίαση και Ανάλυση Αλγορίθμων</a>
-<br><a href="https://mega.nz/folder/f6Y2ADob#hYm89RdN-W--8oPPoUOTuA" class="text-primary" target="_blank">Πιθανότητες και Στατιστική</a>
-<br><a href="https://mega.nz/folder/S7xTyDoT#5A0Zkin0GsTgRW5AXB8JSQ" class="text-primary" target="_blank">Μαθηματική Ανάλυση ΙΙ</a>
-<br><a href="https://mega.nz/folder/ZjgQGDwC#5SfY8445-9-FWmes9OddjQ" class="text-primary" target="_blank">Αντικειμενοστρεφής Προγραμματισμός</a>
-<br><a href="https://mega.nz/folder/rrpBDICS#C5W8EF1I9e3NBD5X2ziA9Q" class="text-primary" target="_blank">Ψηφιακή Σχεδίαση</a>
-<br><a href="https://mega.nz/folder/26Y20BCa#NgfXtymtgza-Bna_z5CpSQ" class="text-primary" target="_blank">Θεωρία Κυκλωμάτων</a></p>
+                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/32g11ThZ#1uorhtloYcWtMR7y45awmQ" class="text-primary" target="_blank">Σχεδίαση και Ανάλυση Αλγορίθμων</a><a href="https://mega.nz/filerequest/edvVzA2NQ2g" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/f6Y2ADob#hYm89RdN-W--8oPPoUOTuA" class="text-primary" target="_blank">Πιθανότητες και Στατιστική</a><a href="https://mega.nz/filerequest/fpYkUHXOJWo" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/S7xTyDoT#5A0Zkin0GsTgRW5AXB8JSQ" class="text-primary" target="_blank">Μαθηματική Ανάλυση ΙΙ</a><a href="https://mega.nz/filerequest/Xxe8ydE1Qjk" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/ZjgQGDwC#5SfY8445-9-FWmes9OddjQ" class="text-primary" target="_blank">Αντικειμενοστρεφής Προγραμματισμός</a><a href="https://mega.nz/filerequest/xHDCcxbYLAc" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/rrpBDICS#C5W8EF1I9e3NBD5X2ziA9Q" class="text-primary" target="_blank">Ψηφιακή Σχεδίαση</a><a href="https://mega.nz/filerequest/kFD6J0U95gg" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/26Y20BCa#NgfXtymtgza-Bna_z5CpSQ" class="text-primary" target="_blank">Θεωρία Κυκλωμάτων</a><a href="https://mega.nz/filerequest/jXg9k5MGKG8" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a></p>
                             </div>
                         </div>
                     </div>
@@ -176,12 +247,18 @@ function filterSubjects() {
                         </div>
                         <div id="collapse3_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
-                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/anx2CSLD#D5ExbG_Gxa9WtjIU47AZHA" class="text-primary" target="_blank">Αλγόριθμοι και Πολυπλοκότητα</a>
-<br><a href="https://mega.nz/folder/6zRTQQqJ#zbGCDb1M5qBO_mMDX8Rbcw" class="text-primary" target="_blank">Ηλεκτρονική</a>
-<br><a href="https://mega.nz/folder/Gy4l1BSZ#AarFOUoFf3i54YJru635yg" class="text-primary" target="_blank">Δομές Δεδομένων</a>
-<br><a href="https://mega.nz/folder/z7YE3TSL#ICQAa6zmEXJq-9GznjkfBA" class="text-primary" target="_blank">Δίκτυα Υπολογιστών Ι</a>
-<br><a href="https://mega.nz/folder/mrBSxaxL#e0D2GVlYdswIX5v_ATds5Q" class="text-primary" target="_blank">Λειτουργικά Συστήματα Ι</a>
-<br><a href="https://mega.nz/folder/X7Ix1QRS#4DgrChkryh5Qg_HFdyB4UQ" class="text-primary" target="_blank">Αρχιτεκτονική Υπολογιστών</a></p>
+                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/anx2CSLD#D5ExbG_Gxa9WtjIU47AZHA" class="text-primary" target="_blank">Αλγόριθμοι και Πολυπλοκότητα</a><a href="https://mega.nz/filerequest/TbO_E9wZ7O4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/6zRTQQqJ#zbGCDb1M5qBO_mMDX8Rbcw" class="text-primary" target="_blank">Ηλεκτρονική</a><a href="https://mega.nz/filerequest/dOEln_6NZVA" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/Gy4l1BSZ#AarFOUoFf3i54YJru635yg" class="text-primary" target="_blank">Δομές Δεδομένων</a><a href="https://mega.nz/filerequest/hDV48-j8CNE" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/z7YE3TSL#ICQAa6zmEXJq-9GznjkfBA" class="text-primary" target="_blank">Δίκτυα Υπολογιστών Ι</a><a href="https://mega.nz/filerequest/6qLmKTFhgUA" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/mrBSxaxL#e0D2GVlYdswIX5v_ATds5Q" class="text-primary" target="_blank">Λειτουργικά Συστήματα Ι</a><a href="https://mega.nz/filerequest/B_8iSbr3aoI" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/X7Ix1QRS#4DgrChkryh5Qg_HFdyB4UQ" class="text-primary" target="_blank">Αρχιτεκτονική Υπολογιστών</a><a href="https://mega.nz/filerequest/uMQWlSBXuMw" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a></p>
                             </div>
                         </div>
                     </div>
@@ -194,13 +271,20 @@ function filterSubjects() {
                         </div>
                         <div id="collapse4_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
-                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/TrwUxI5Q#kNYA7PZLLfN8qyUnI-rFNA" class="text-primary" target="_blank">Βάσεις Δεδομένων Ι</a>
-<br><a href="https://mega.nz/folder/er4V1aSa#YjoJtQwUaIdhGy4cQCKs0A" class="text-primary" target="_blank">Δίκτυα Υπολογιστών ΙΙ</a>
-<br><a href="https://mega.nz/folder/HlVBATxT#rhoKUMUY57Oh5MCCg_uiOg" class="text-primary" target="_blank">Λειτουργικά Συστήματα ΙΙ</a>
-<br><a href="https://mega.nz/folder/ulkziTLQ#onDY3_UNUohYaevltUnPfA" class="text-primary" target="_blank">Μεθοδολογίες Ανάπτυξης Εφαρμογών</a>
-<br><a href="https://mega.nz/folder/7hNmGIwL#4YP9T4S-xgq2w8OYJMNECA" class="text-primary" target="_blank">Σχεδίαση Ψηφιακών Συστημάτων</a>
-<br><a href="https://mega.nz/folder/D1VikZ7Q#Z-VJnRi9SiwElft3p07FrQ" class="text-primary" target="_blank">Σήματα και Συστήματα</a>
-<br><a href="https://mega.nz/folder/a08DQC7K#rxrWwPwNg0bD8-RPXFo7RA" class="text-primary" target="_blank">Σύνταξη Τεχνικών Κειμένων</a></p>
+                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/TrwUxI5Q#kNYA7PZLLfN8qyUnI-rFNA" class="text-primary" target="_blank">Βάσεις Δεδομένων Ι</a><a href="https://mega.nz/filerequest/-8J9pa4lj60" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/er4V1aSa#YjoJtQwUaIdhGy4cQCKs0A" class="text-primary" target="_blank">Δίκτυα Υπολογιστών ΙΙ</a><a href="https://mega.nz/filerequest/4DbgcXOFli4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/HlVBATxT#rhoKUMUY57Oh5MCCg_uiOg" class="text-primary" target="_blank">Λειτουργικά Συστήματα ΙΙ</a><a href="https://mega.nz/filerequest/meWg9T2qGL8" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/ulkziTLQ#onDY3_UNUohYaevltUnPfA" class="text-primary" target="_blank">Μεθοδολογίες Ανάπτυξης Εφαρμογών</a><a href="https://mega.nz/filerequest/gIjgV_cPlDU" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/7hNmGIwL#4YP9T4S-xgq2w8OYJMNECA" class="text-primary" target="_blank">Σχεδίαση Ψηφιακών Συστημάτων</a><a href="https://mega.nz/filerequest/FIlwIugS6Kw" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/D1VikZ7Q#Z-VJnRi9SiwElft3p07FrQ" class="text-primary" target="_blank">Σήματα και Συστήματα</a><a href="https://mega.nz/filerequest/ZYRwoP_xifA" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/a08DQC7K#rxrWwPwNg0bD8-RPXFo7RA" class="text-primary" target="_blank">Σύνταξη Τεχνικών Κειμένων</a><a href="https://mega.nz/filerequest/AQX8lTOgD6o" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a></p>
                             </div>
                         </div>
                     </div>
@@ -213,12 +297,18 @@ function filterSubjects() {
                         </div>
                         <div id="collapse5_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
-                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/MlYhzYDA#8Mz0T0Iv0ZjzDLaCKDJH9A" class="text-primary" target="_blank">Βάσεις Δεδομένων ΙΙ</a>
-<br><a href="https://mega.nz/folder/TwtGVSSC#rKerLHpTqosmC-kT6pIZEg" class="text-primary" target="_blank">Δικτυακός Προγραμματισμός</a>
-<br><a href="https://mega.nz/folder/Xg9GDQRQ#Om9wRLvZUA7C-LR_77BRoA" class="text-primary" target="_blank">Ανάλυση και Σχεδιασμός Πληροφοριακών Συστημάτων</a>
-<br><a href="https://mega.nz/folder/LskGjbCI#yX1QAVjyrAvuwwfpFhA1VQ" class="text-primary" target="_blank">Τεχνητή Νοημοσύνη</a>
-<br><a href="https://mega.nz/folder/WgkDhDZa#jqLyoLpBlgEB6RFhX0E6YQ" class="text-primary" target="_blank">Ψηφιακή Επεξεργασία Σήματος</a>
-<br><a href="https://mega.nz/folder/3pEXnQoC#H5_ga1S4EPVKH84oW_IFNw" class="text-primary" target="_blank">Εισαγωγή στον Παράλληλο Υπολογισμό</a></p>
+                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/MlYhzYDA#8Mz0T0Iv0ZjzDLaCKDJH9A" class="text-primary" target="_blank">Βάσεις Δεδομένων ΙΙ</a><a href="https://mega.nz/filerequest/Lrgl4EVPmHk" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/TwtGVSSC#rKerLHpTqosmC-kT6pIZEg" class="text-primary" target="_blank">Δικτυακός Προγραμματισμός</a><a href="https://mega.nz/filerequest/G9BaVbm3z30" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/Xg9GDQRQ#Om9wRLvZUA7C-LR_77BRoA" class="text-primary" target="_blank">Ανάλυση και Σχεδιασμός Πληροφοριακών Συστημάτων</a><a href="https://mega.nz/filerequest/3McraeO1nHs" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/LskGjbCI#yX1QAVjyrAvuwwfpFhA1VQ" class="text-primary" target="_blank">Τεχνητή Νοημοσύνη</a><a href="https://mega.nz/filerequest/K1Sar9zt6io" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/WgkDhDZa#jqLyoLpBlgEB6RFhX0E6YQ" class="text-primary" target="_blank">Ψηφιακή Επεξεργασία Σήματος</a><a href="https://mega.nz/filerequest/YS_U_6WYmNA" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/3pEXnQoC#H5_ga1S4EPVKH84oW_IFNw" class="text-primary" target="_blank">Εισαγωγή στον Παράλληλο Υπολογισμό</a><a href="https://mega.nz/filerequest/7mKDERP4fIw" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a></p>
                             </div>
                         </div>
                     </div>
@@ -231,12 +321,18 @@ function filterSubjects() {
                         </div>
                         <div id="collapse6_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
-                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/5HsDER5K#1YHHsSV3W8ST85i3MwjKIA" class="text-primary" target="_blank">Τεχνολογία Λογισμικού</a>
-<br><a href="https://mega.nz/folder/Nf1mhCzJ#d7j_ZtnguR6_wnpk0N6fZQ" class="text-primary" target="_blank">Ασφάλεια στην Τεχνολογία της Πληροφορίας</a>
-<br><a href="https://mega.nz/folder/RetVRDwI#VTimuSJj7lCYLKpY22Qjyg" class="text-primary" target="_blank">Μεταγλωττιστές</a>
-<br><a href="https://mega.nz/folder/0bNjCLra#q73oKH_ZAyRSP3ePBdYMUg" class="text-primary" target="_blank">Μικροηλεκτρονική</a>
-<br><a href="https://mega.nz/folder/dLcEzIrI#175Pdokb9urbLfLWeyfJ7g" class="text-primary" target="_blank">Κατανεμημένα Συστήματα</a>
-<br><a href="https://mega.nz/folder/8P8jDAaY#pX9TvH9orOhBYLAx8pUTAA" class="text-primary" target="_blank">Ψηφιακές Επικοινωνίες</a></p>
+                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/5HsDER5K#1YHHsSV3W8ST85i3MwjKIA" class="text-primary" target="_blank">Τεχνολογία Λογισμικού</a><a href="https://mega.nz/filerequest/htw3tMPJWWc" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/Nf1mhCzJ#d7j_ZtnguR6_wnpk0N6fZQ" class="text-primary" target="_blank">Ασφάλεια στην Τεχνολογία της Πληροφορίας</a><a href="https://mega.nz/filerequest/5KOmhbsUpAg" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/RetVRDwI#VTimuSJj7lCYLKpY22Qjyg" class="text-primary" target="_blank">Μεταγλωττιστές</a><a href="https://mega.nz/filerequest/KbK27CsFGdc" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/0bNjCLra#q73oKH_ZAyRSP3ePBdYMUg" class="text-primary" target="_blank">Μικροηλεκτρονική</a><a href="https://mega.nz/filerequest/HwIcM5b50og" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/dLcEzIrI#175Pdokb9urbLfLWeyfJ7g" class="text-primary" target="_blank">Κατανεμημένα Συστήματα</a><a href="https://mega.nz/filerequest/ECgwcD2euxU" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/8P8jDAaY#pX9TvH9orOhBYLAx8pUTAA" class="text-primary" target="_blank">Ψηφιακές Επικοινωνίες</a><a href="https://mega.nz/filerequest/J7VlUI2ih3w" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a></p>
                             </div>
                         </div>
                     </div>
@@ -249,8 +345,10 @@ function filterSubjects() {
                         </div>
                         <div id="collapse7_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
-                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/oD0UUaCT#Dcum0WsSdV-xTMuTjMstYA" class="text-primary" target="_blank">Τεχνολογία Υπολογιστικών Συστημάτων</a>
-<br><a href="https://mega.nz/folder/tCMhADYI#sVo6qa4MCNGDkOBhC6YzDQ" class="text-primary" target="_blank">Θεωρία Υπολογισμού</a><br></p>
+                                <p class="mbr-fonts-style panel-text display-7"><a href="https://mega.nz/folder/oD0UUaCT#Dcum0WsSdV-xTMuTjMstYA" class="text-primary" target="_blank">Τεχνολογία Υπολογιστικών Συστημάτων</a><a href="https://mega.nz/filerequest/z6EiZbBvoBs" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/tCMhADYI#sVo6qa4MCNGDkOBhC6YzDQ" class="text-primary" target="_blank">Θεωρία Υπολογισμού</a><a href="https://mega.nz/filerequest/5dIrCPu40ng" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a><br></p>
                             </div>
                         </div>
                     </div>
@@ -264,32 +362,58 @@ function filterSubjects() {
                         <div id="collapse8_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
                                 <p class="mbr-fonts-style panel-text display-7">
-                                    <a href="https://mega.nz/folder/tHEDHa5S#M9xJjEB7PfS0ubRzQzyx0w" class="text-primary" target="_blank">Σχεδιασμός και Ανάπτυξη Πληροφοριακών Συστημάτων</a>
-<br><a href="https://mega.nz/folder/FW1EACKI#5qheKy_qoT_5dFxxHk_Kpw" class="text-primary" target="_blank">Ανάκτηση Πληροφορίας</a>
-<br><a href="https://mega.nz/folder/Qb1zGbSY#EciHNDshk9NXG4oTBCCwWA" class="text-primary" target="_blank">Αλληλεπίδραση Ανθρώπου-Υπολογιστή</a>
-<br><a href="https://mega.nz/folder/FCkEDJpb#QthfPFFJUQPyXoto1rEA0Q" class="text-primary" target="_blank">Γραφικά Υπολογιστών</a>
-<br><a href="https://mega.nz/folder/dTlkRCSJ#mXw9mw-TwVMC9NwJU8_hcg" class="text-primary" target="_blank">Αναγνώριση Προτύπων</a>
-<br><a href="https://mega.nz/folder/AGFhCZiY#Nu5uYB4BB_dqvh59OzK3ew" class="text-primary" target="_blank">Επεξεργασία Φυσικής Γλώσσας και σημασιολογικός ιστός</a>
-<br><a href="https://mega.nz/folder/JK9EFLgZ#a8Q6VqqkxfaNsAB_QxHs-A" class="text-primary" target="_blank">Διαχείριση Γνώσης</a>
-<br><a href="https://mega.nz/folder/hWMwFCqY#bPGxdjeu6PJlZgBCJqGsQw" class="text-primary" target="_blank">Διαχείριση Δεδομένων Μεγάλης Κλίμακας</a>
-<br><a href="https://mega.nz/folder/hGN0narb#Vk7h4DbmtNIG_vIiah9dnA" class="text-primary" target="_blank">Ειδικά Θέματα Τεχνολογίας Λογισμικού</a>
-<br><a href="https://mega.nz/folder/xS9WmAZY#7MfQ9Qyim3Zqz1DzjeFhXw" class="text-primary" target="_blank">Εξόρυξη Δεδομένων</a>
-<br><a href="https://mega.nz/folder/9SNg3Sxa#dgXrTV_rZ139PZcR7iGhFQ" class="text-primary" target="_blank">Επεξεργασία Εικόνας</a>
-<br><a href="https://mega.nz/folder/YSFAzY4T#QBS-nDUihyz8HCnY9Z6fyQ" class="text-primary" target="_blank">Επιχειρησιακή Έρευνα</a>
-<br><a href="https://mega.nz/folder/kGUHyDYR#tij2CMNlZNhuK1khQnb_cw" class="text-primary" target="_blank">Ευφυή Συστήματα &amp; Συστήματα Υποστήριξης Αποφάσεων</a>
-<br><a href="https://mega.nz/folder/Bf82hRDJ#x4-AM_xzA-T8HQnf8hPEpA" class="text-primary" target="_blank">Ηλεκτρονική Μάθηση</a>
-<br><a href="https://mega.nz/folder/wXNzgaIJ#Dcc2pNhnh9BmwIzREownYw" class="text-primary" target="_blank">Ηλεκτρονικό Εμπόριο -Επιχειρηματικότητα</a>
-<br><a href="https://mega.nz/folder/IX0CyKJQ#ygL3z93H26hvB07a-1zMbw" class="text-primary" target="_blank">Θεωρία Γραφημάτων και Εφαρμογές</a>
-<br><a href="https://mega.nz/folder/dbsTTZST#z4lEDxZ1FK3YUGX6Cvu3vg" class="text-primary" target="_blank">Θεωρία Παιγνίων</a>
-<br><a href="https://mega.nz/folder/oeFEhAiA#HWovirtKeSDVxz6tSZ8wuQ" class="text-primary" target="_blank">Μοντελοποίηση και Προγραμματισμός Περιορισμών</a>
-<br><a href="https://mega.nz/folder/tKMQEDiI#qM0umL0vK_yS5zSr5guW6w" class="text-primary" target="_blank">Νευρωνικά Δίκτυα</a>
-<br><a href="https://mega.nz/folder/xTNnXLzD#bPLEqHSZn39yMTwyvXhBpQ" class="text-primary" target="_blank">Όραση Υπολογιστών</a>
-<br><a href="https://mega.nz/folder/sCNxmLrD#1OfWl01PK0vqUAwPrS_v4w" class="text-primary" target="_blank">Πληροφοριακά Συστήματα Διοίκησης</a>
-<br><a href="https://mega.nz/folder/sSU0TYZK#cjin8kAHY3KsTels6X6mfA" class="text-primary" target="_blank">Πληροφορική Υγείας</a>
-<br><a href="https://mega.nz/folder/dHNW1DiD#2NWbDYRIvizCDTeLdVbTBA" class="text-primary" target="_blank">Ποιότητα και Αξιοπιστία Λογισμικού</a>
-<br><a href="https://mega.nz/folder/YGdjSI5D#y5Y90KqbZR3ICIu3YTafxw" class="text-primary" target="_blank">Συστήματα Αποφάσεων και Διαχείρισης Διεργασιών</a>
-<br><a href="https://mega.nz/folder/4LkwxbQB#klyxh5CKKEIoaEIc56kdlQ" class="text-primary" target="_blank">Συστήματα Ασαφούς Λογικής και Αβεβαιότητας</a>
-<br><a href="https://mega.nz/folder/QK8FWLYb#wQnn0x9MI3WvF2xLY7WRCQ" class="text-primary" target="_blank">Σχεδιασμός Παιχνιδιών και Εφαρμογών Εικονικής και Επαυξημένης Πραγματικότητας</a><br></p>
+                                    <a href="https://mega.nz/folder/tHEDHa5S#M9xJjEB7PfS0ubRzQzyx0w" class="text-primary" target="_blank">Σχεδιασμός και Ανάπτυξη Πληροφοριακών Συστημάτων</a><a href="https://mega.nz/filerequest/Z8fKtmZLRic" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/FW1EACKI#5qheKy_qoT_5dFxxHk_Kpw" class="text-primary" target="_blank">Ανάκτηση Πληροφορίας</a><a href="https://mega.nz/filerequest/fVv042nTze0" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/Qb1zGbSY#EciHNDshk9NXG4oTBCCwWA" class="text-primary" target="_blank">Αλληλεπίδραση Ανθρώπου-Υπολογιστή</a><a href="https://mega.nz/filerequest/okFQW6XZXXQ" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/FCkEDJpb#QthfPFFJUQPyXoto1rEA0Q" class="text-primary" target="_blank">Γραφικά Υπολογιστών</a><a href="https://mega.nz/filerequest/0t6SFi50C_4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/dTlkRCSJ#mXw9mw-TwVMC9NwJU8_hcg" class="text-primary" target="_blank">Αναγνώριση Προτύπων</a><a href="https://mega.nz/filerequest/P-sgHmKtoDg" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/AGFhCZiY#Nu5uYB4BB_dqvh59OzK3ew" class="text-primary" target="_blank">Επεξεργασία Φυσικής Γλώσσας και σημασιολογικός ιστός</a><a href="https://mega.nz/filerequest/51SFmUmf2bE" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/JK9EFLgZ#a8Q6VqqkxfaNsAB_QxHs-A" class="text-primary" target="_blank">Διαχείριση Γνώσης</a><a href="https://mega.nz/filerequest/yXPPHgvSdpc" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/hWMwFCqY#bPGxdjeu6PJlZgBCJqGsQw" class="text-primary" target="_blank">Διαχείριση Δεδομένων Μεγάλης Κλίμακας</a><a href="https://mega.nz/filerequest/CxaQoc5rrhc" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/hGN0narb#Vk7h4DbmtNIG_vIiah9dnA" class="text-primary" target="_blank">Ειδικά Θέματα Τεχνολογίας Λογισμικού</a><a href="https://mega.nz/filerequest/iFpy_rYVM8k" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/xS9WmAZY#7MfQ9Qyim3Zqz1DzjeFhXw" class="text-primary" target="_blank">Εξόρυξη Δεδομένων</a><a href="https://mega.nz/filerequest/WUACfFjUhC4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/9SNg3Sxa#dgXrTV_rZ139PZcR7iGhFQ" class="text-primary" target="_blank">Επεξεργασία Εικόνας</a><a href="https://mega.nz/filerequest/-nKo2i7Y07M" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/YSFAzY4T#QBS-nDUihyz8HCnY9Z6fyQ" class="text-primary" target="_blank">Επιχειρησιακή Έρευνα</a><a href="https://mega.nz/filerequest/LFRLeTQYB_c" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/kGUHyDYR#tij2CMNlZNhuK1khQnb_cw" class="text-primary" target="_blank">Ευφυή Συστήματα &amp; Συστήματα Υποστήριξης Αποφάσεων</a><a href="https://mega.nz/filerequest/pP1oRAGmIS0" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/Bf82hRDJ#x4-AM_xzA-T8HQnf8hPEpA" class="text-primary" target="_blank">Ηλεκτρονική Μάθηση</a><a href="https://mega.nz/filerequest/Kukb_A4iBHA" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/wXNzgaIJ#Dcc2pNhnh9BmwIzREownYw" class="text-primary" target="_blank">Ηλεκτρονικό Εμπόριο -Επιχειρηματικότητα</a><a href="https://mega.nz/filerequest/fynsjd3MJGc" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/IX0CyKJQ#ygL3z93H26hvB07a-1zMbw" class="text-primary" target="_blank">Θεωρία Γραφημάτων και Εφαρμογές</a><a href="https://mega.nz/filerequest/WM6X3BO4JSQ" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/dbsTTZST#z4lEDxZ1FK3YUGX6Cvu3vg" class="text-primary" target="_blank">Θεωρία Παιγνίων</a><a href="https://mega.nz/filerequest/EfsDkFGBq-U" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/oeFEhAiA#HWovirtKeSDVxz6tSZ8wuQ" class="text-primary" target="_blank">Μοντελοποίηση και Προγραμματισμός Περιορισμών</a><a href="https://mega.nz/filerequest/iWsPUe6fF5I" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/tKMQEDiI#qM0umL0vK_yS5zSr5guW6w" class="text-primary" target="_blank">Νευρωνικά Δίκτυα</a><a href="https://mega.nz/filerequest/kYNUUx2oHBw" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/xTNnXLzD#bPLEqHSZn39yMTwyvXhBpQ" class="text-primary" target="_blank">Όραση Υπολογιστών</a><a href="https://mega.nz/filerequest/LernV0BFxp4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/sCNxmLrD#1OfWl01PK0vqUAwPrS_v4w" class="text-primary" target="_blank">Πληροφοριακά Συστήματα Διοίκησης</a><a href="https://mega.nz/filerequest/mkY6DjRBC8k" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/sSU0TYZK#cjin8kAHY3KsTels6X6mfA" class="text-primary" target="_blank">Πληροφορική Υγείας</a><a href="https://mega.nz/filerequest/u7S8hh3zrkE" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/dHNW1DiD#2NWbDYRIvizCDTeLdVbTBA" class="text-primary" target="_blank">Ποιότητα και Αξιοπιστία Λογισμικού</a><a href="https://mega.nz/filerequest/1aIZskNkVzI" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/YGdjSI5D#y5Y90KqbZR3ICIu3YTafxw" class="text-primary" target="_blank">Συστήματα Αποφάσεων και Διαχείρισης Διεργασιών</a><a href="https://mega.nz/filerequest/RDRNySWlAp8" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/4LkwxbQB#klyxh5CKKEIoaEIc56kdlQ" class="text-primary" target="_blank">Συστήματα Ασαφούς Λογικής και Αβεβαιότητας</a><a href="https://mega.nz/filerequest/hu4FR8sjStE" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/QK8FWLYb#wQnn0x9MI3WvF2xLY7WRCQ" class="text-primary" target="_blank">Σχεδιασμός Παιχνιδιών και Εφαρμογών Εικονικής και Επαυξημένης Πραγματικότητας</a><a href="https://mega.nz/filerequest/EiRCE6n1Qu4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a><br></p>
                             </div>
                         </div>
                     </div>
@@ -303,22 +427,38 @@ function filterSubjects() {
                         <div id="collapse9_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
                                 <p class="mbr-fonts-style panel-text display-7">
-                                    <a href="https://mega.nz/folder/FO8UFAxJ#0gptKz6MD-2gb6TrUN34Gw" class="text-primary" target="_blank">Μικροϋπολογιστές</a>
-<br><a href="https://mega.nz/folder/tf1ymLqI#gKGVwHwdyMpIB3Khue1hig" class="text-primary" target="_blank">Σχεδίαση Συστημάτων με Χρήση Υπολογιστή</a>
-<br><a href="https://mega.nz/folder/tGFkkAKQ#FD01c6avtMXgriTGF6mvzA" class="text-primary" target="_blank">Αυτόματος Έλεγχος Συστημάτων</a>
-<br><a href="https://mega.nz/folder/hTsHAJoJ#o4BTCW45aEZDLGgH1r_q9Q" class="text-primary" target="_blank">Προηγμένη Αρχιτεκτονική Υπολογιστών</a>
-<br><a href="https://mega.nz/folder/hTchRC4B#uaHf1TNSj7MAY42VqgfTsA" class="text-primary" target="_blank">Ασφάλεια και Αξιοπιστία Υλικού</a>
-<br><a href="https://mega.nz/folder/gOUxmJ6a#t91hqdaGSV0xqFN5wgEFLg" class="text-primary" target="_blank">Βιομηχανική Πληροφορική</a>
-<br><a href="https://mega.nz/folder/EbVUEICK#hQ9bnH0RZ7oOXAbp3--17Q" class="text-primary" target="_blank">Ενσωματωμένα Συστήματα</a>
-<br><a href="https://mega.nz/folder/APEzTLKJ#x1chPPQ6D5eKFvXW1napFw" class="text-primary" target="_blank">Μηχατρονική</a>
-<br><a href="https://mega.nz/folder/cONTQQpS#3xui4dMLBpPzsS9MMIXfMA" class="text-primary" target="_blank">Ολοκληρωμένα Κυκλώματα για Εξειδικευμένες Εφαρμογές</a>
-<br><a href="https://mega.nz/folder/ESEDSDQD#rynkn23PoUKup2WqkEKNug" class="text-primary" target="_blank">Παράλληλα Συστήματα</a>
-<br><a href="https://mega.nz/folder/YKNT1QJC#nMSOMR65o9i-9kErYSGkhw" class="text-primary" target="_blank">Προηγμένη Σχεδίαση και Σύνθεση Ψηφιακών Συστημάτων</a>
-<br><a href="https://mega.nz/folder/9PtwWCqL#u_5fQhCX09GymCiLPRJHug" class="text-primary" target="_blank">Ρομποτική</a>
-<br><a href="https://mega.nz/folder/NH1VnBIK#r5V8WTiSX5ln3hiRgHShJg" class="text-primary" target="_blank">Στοχαστικά και μη Γραμμικά Συστήματα</a>
-<br><a href="https://mega.nz/folder/JW8jUYBQ#t8tFZYvxck2CxRD-AyjLsg" class="text-primary" target="_blank">Σχεδίαση Ολοκληρωμένων Κυκλωμάτων VLSI</a>
-<br><a href="https://mega.nz/folder/cDcniL4Z#0wIXPCjRDvghn3xqKKb8sw" class="text-primary" target="_blank">Υπολογιστικά Συστήματα Υψηλής Αξιοπιστίας</a>
-<br><a href="https://mega.nz/folder/tb0CwIIA#OMXPwMI02thN1JpMbQULgQ" class="text-primary" target="_blank">Ψηφιακός Έλεγχος Συστημάτων</a><br></p>
+                                    <a href="https://mega.nz/folder/UKcxASTT#0gptKz6MD-2gb6TrUN34Gw" class="text-primary" target="_blank">Μικροϋπολογιστές</a><a href="https://mega.nz/filerequest/drJOL5SO2MQ" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/de9xwQzI#gKGVwHwdyMpIB3Khue1hig" class="text-primary" target="_blank">Σχεδίαση Συστημάτων με Χρήση Υπολογιστή</a><a href="https://mega.nz/filerequest/Suc-Ts_b4Ag" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/1K1gFZ7A#FD01c6avtMXgriTGF6mvzA" class="text-primary" target="_blank">Αυτόματος Έλεγχος Συστημάτων</a><a href="https://mega.nz/filerequest/b-lC2HjxtS0" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/hXNwnCiI#o4BTCW45aEZDLGgH1r_q9Q" class="text-primary" target="_blank">Προηγμένη Αρχιτεκτονική Υπολογιστών</a><a href="https://mega.nz/filerequest/RzdhBUQUqtM" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/9CdCDRwI#uaHf1TNSj7MAY42VqgfTsA" class="text-primary" target="_blank">Ασφάλεια και Αξιοπιστία Υλικού</a><a href="https://mega.nz/filerequest/k-SvjyPTe8g" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/EOE1HCaA#t91hqdaGSV0xqFN5wgEFLg" class="text-primary" target="_blank">Βιομηχανική Πληροφορική</a><a href="https://mega.nz/filerequest/0K-tf7OS8Rk" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/lLV2lBhZ#hQ9bnH0RZ7oOXAbp3--17Q" class="text-primary" target="_blank">Ενσωματωμένα Συστήματα</a><a href="https://mega.nz/filerequest/6YC9l0PcXD8" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/tDEQxBRC#x1chPPQ6D5eKFvXW1napFw" class="text-primary" target="_blank">Μηχατρονική</a><a href="https://mega.nz/filerequest/n6cEGfeYYnQ" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/9DUHjYoJ#3xui4dMLBpPzsS9MMIXfMA" class="text-primary" target="_blank">Ολοκληρωμένα Κυκλώματα για Εξειδικευμένες Εφαρμογές</a><a href="https://mega.nz/filerequest/YAFcH-YJSiA" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/hWVBHTKY#rynkn23PoUKup2WqkEKNug" class="text-primary" target="_blank">Παράλληλα Συστήματα</a><a href="https://mega.nz/filerequest/NE10k5Sd5lo" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/FTdBCK6L#nMSOMR65o9i-9kErYSGkhw" class="text-primary" target="_blank">Προηγμένη Σχεδίαση και Σύνθεση Ψηφιακών Συστημάτων</a><a href="https://mega.nz/filerequest/_U4ea12K9u0" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/pallAATJ#u_5fQhCX09GymCiLPRJHug" class="text-primary" target="_blank">Ρομποτική</a><a href="https://mega.nz/filerequest/3z8-4P7hdNg" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/UDExESTT#r5V8WTiSX5ln3hiRgHShJg" class="text-primary" target="_blank">Στοχαστικά και μη Γραμμικά Συστήματα</a><a href="https://mega.nz/filerequest/l9lnnYuDNvk" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/ofMmBKbQ#t8tFZYvxck2CxRD-AyjLsg" class="text-primary" target="_blank">Σχεδίαση Ολοκληρωμένων Κυκλωμάτων VLSI</a><a href="https://mega.nz/filerequest/Cv9COWHj_F8" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/5LNw3Z6K#0wIXPCjRDvghn3xqKKb8sw" class="text-primary" target="_blank">Υπολογιστικά Συστήματα Υψηλής Αξιοπιστίας</a><a href="https://mega.nz/filerequest/21bwv-aAq8w" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/8LNjgCDA#OMXPwMI02thN1JpMbQULgQ" class="text-primary" target="_blank">Ψηφιακός Έλεγχος Συστημάτων</a><a href="https://mega.nz/filerequest/czVWmT4cnus" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a><br></p>
                             </div>
                         </div>
                     </div>
@@ -332,21 +472,36 @@ function filterSubjects() {
                         <div id="collapse10_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
                                 <p class="mbr-fonts-style panel-text display-7">
-                                    <a href="https://mega.nz/folder/QGcj0IyR#dSq-UHadVGJGQ5eOwILjcg" class="text-primary" target="_blank">Προηγμένες Δικτυακές Τεχνολογίες</a>
-<br><a href="https://mega.nz/folder/8D91gJaI#NGT7axtpM1SykCgCqdoRGw" class="text-primary" target="_blank">Ασφάλεια Δικτύων και Επικοινωνιών</a>
-<br><a href="https://mega.nz/folder/EC8ECQ7B#3ryq6UEDEcuZIgD5Mivmvw" class="text-primary" target="_blank">Υπολογιστική Νέφους και Υπηρεσίες</a>
-<br><a href="https://mega.nz/folder/UXVU0DgI#93AYIasOcGsvr-g3T1Tw7A" class="text-primary" target="_blank">Δίκτυα Κινητών Επικοινωνιών</a>
-<br><a href="https://mega.nz/folder/heEBhADD#D1HiBBaBgtXkVYnhIkPY5Q" class="text-primary" target="_blank">Ασύρματα Δίκτυα Αισθητήρων</a>
-<br><a href="https://mega.nz/folder/YTFAzZCL#PYhb-0kJ9-zc2y8y2gq21Q" class="text-primary" target="_blank">Βελτιστοποίηση</a>
-<br><a href="https://mega.nz/folder/EfU0jIBb#DLCwpypBjq_dpPB5_epLxg" class="text-primary" target="_blank">Τηλεπικοινωνιακά Συστήματα</a>
-<br><a href="https://mega.nz/folder/gTtSGbaQ#dWLB3_LzyP1Nuz6YD-MqZQ" class="text-primary" target="_blank">Διαδίκτυο των Αντικειμένων</a>
-<br><a href="https://mega.nz/folder/Eat23AYL#U2UyGhuV1ugvHgUxQ8sEQw" class="text-primary" target="_blank">Δίκτυα Οπτικών Επικοινωνιών</a>
-<br><a href="https://mega.nz/folder/tDUVzShC#Tp3qlf3K1J9frjRwY06MgA" class="text-primary" target="_blank">Δικτύωση Ορισμένη από το Λογισμικό</a>
-<br><a href="https://mega.nz/folder/AbNh2TzC#6pB2VwpMAGN1_xM45Wrkrw" class="text-primary" target="_blank">Ευρυζωνικά Δίκτυα</a>
-<br><a href="https://mega.nz/folder/hekl0KoQ#Fu9Ul7UmsoF3onol2kNAlg" class="text-primary" target="_blank">Κανονιστικά Πλαίσια Ασφάλειας Επικοινωνιών και Πληροφοριών</a>
-<br><a href="https://mega.nz/folder/BDNCCZDB#TQ16A2wbMZmQBBO0ek8F3w" class="text-primary" target="_blank">Κρυπτογραφία</a>
-<br><a href="https://mega.nz/folder/9akDXAgA#GFc--l-x2iMhAs61COSQpA" class="text-primary" target="_blank">Πολυμέσα και Πολυμεσικές Επικοινωνίες</a>
-<br><a href="https://mega.nz/folder/0OFjSJzK#-KXmkGzcztWYhqSuNM3dLA" class="text-primary" target="_blank">Τεχνολογία και Προγραμματισμός Κινητών Συσκευών</a><br></p>
+                                    <a href="https://mega.nz/folder/QGcj0IyR#dSq-UHadVGJGQ5eOwILjcg" class="text-primary" target="_blank">Προηγμένες Δικτυακές Τεχνολογίες</a><a href="https://mega.nz/filerequest/F-AAbXZCjME" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/8D91gJaI#NGT7axtpM1SykCgCqdoRGw" class="text-primary" target="_blank">Ασφάλεια Δικτύων και Επικοινωνιών</a><a href="https://mega.nz/filerequest/Hu4ndIXQQow" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/EC8ECQ7B#3ryq6UEDEcuZIgD5Mivmvw" class="text-primary" target="_blank">Υπολογιστική Νέφους και Υπηρεσίες</a><a href="https://mega.nz/filerequest/Zo0-acInhLY" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/UXVU0DgI#93AYIasOcGsvr-g3T1Tw7A" class="text-primary" target="_blank">Δίκτυα Κινητών Επικοινωνιών</a><a href="https://mega.nz/filerequest/6wX4XQkEF2Q" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/heEBhADD#D1HiBBaBgtXkVYnhIkPY5Q" class="text-primary" target="_blank">Ασύρματα Δίκτυα Αισθητήρων</a><a href="https://mega.nz/filerequest/JPfzfHEAjc8" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/YTFAzZCL#PYhb-0kJ9-zc2y8y2gq21Q" class="text-primary" target="_blank">Βελτιστοποίηση</a><a href="https://mega.nz/filerequest/R8DWG1LT3p4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/EfU0jIBb#DLCwpypBjq_dpPB5_epLxg" class="text-primary" target="_blank">Τηλεπικοινωνιακά Συστήματα</a><a href="https://mega.nz/filerequest/SveqBhMACJM" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/gTtSGbaQ#dWLB3_LzyP1Nuz6YD-MqZQ" class="text-primary" target="_blank">Διαδίκτυο των Αντικειμένων</a><a href="https://mega.nz/filerequest/EHF8A-BHuD4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/Eat23AYL#U2UyGhuV1ugvHgUxQ8sEQw" class="text-primary" target="_blank">Δίκτυα Οπτικών Επικοινωνιών</a><a href="https://mega.nz/filerequest/aoxIAI2RrGE" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/tDUVzShC#Tp3qlf3K1J9frjRwY06MgA" class="text-primary" target="_blank">Δικτύωση Ορισμένη από το Λογισμικό</a><a href="https://mega.nz/filerequest/9gOUhtuKiWw" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/AbNh2TzC#6pB2VwpMAGN1_xM45Wrkrw" class="text-primary" target="_blank">Ευρυζωνικά Δίκτυα</a><a href="https://mega.nz/filerequest/WELcrWWoPDI" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/hekl0KoQ#Fu9Ul7UmsoF3onol2kNAlg" class="text-primary" target="_blank">Κανονιστικά Πλαίσια Ασφάλειας Επικοινωνιών και Πληροφοριών</a><a href="https://mega.nz/filerequest/beUhT8qeHwg" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/BDNCCZDB#TQ16A2wbMZmQBBO0ek8F3w" class="text-primary" target="_blank">Κρυπτογραφία</a><a href="https://mega.nz/filerequest/FOCFQFR1_Jo" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/9akDXAgA#GFc--l-x2iMhAs61COSQpA" class="text-primary" target="_blank">Πολυμέσα και Πολυμεσικές Επικοινωνίες</a><a href="https://mega.nz/filerequest/f56NfqN3EtQ" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/0OFjSJzK#-KXmkGzcztWYhqSuNM3dLA" class="text-primary" target="_blank">Τεχνολογία και Προγραμματισμός Κινητών Συσκευών</a><a href="https://mega.nz/filerequest/GgpBQGpEnk4" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a><br></p>
                             </div>
                         </div>
                     </div>
@@ -360,12 +515,18 @@ function filterSubjects() {
                         <div id="collapse11_24" class="panel-collapse noScroll collapse" role="tabpanel" aria-labelledby="headingOne" data-parent="#accordion" data-bs-parent="#bootstrap-accordion_24">
                             <div class="panel-body">
                                 <p class="mbr-fonts-style panel-text display-7">
-                                    <a href="https://mega.nz/folder/5H03FRwS#Gtp93W9sbHXILa7EIfcqAg" class="text-primary" target="_blank">Διαχείριση Έργου</a>
-<br><a href="https://mega.nz/folder/MKNVBKAJ#zXnkFcB5VGaM2YEPQXvmrg" class="text-primary" target="_blank">Δίκαιο και Κυβερνοηθική</a>
-<br><a href="https://mega.nz/folder/EKNClIxR#4EEk9cPEB6VQeEjd8k1QiA" class="text-primary" target="_blank">Εκπαιδευτική Τεχνολογία και Διδακτική της Πληροφορικής</a>
-<br><a href="https://mega.nz/folder/oL0mQTRA#QqRkQjBxazMTozalgpm7sw" class="text-primary" target="_blank">Ιστορία της Τεχνολογίας</a>
-<br><a href="https://mega.nz/folder/cDs2kLrL#8uyS7JipfbezjvCra6pF3A" class="text-primary" target="_blank">Πληροφορική και Κοινωνία -Τεχνική της Έκφρασης</a>
-<br><a href="https://mega.nz/folder/5DNGiYSJ#eCtw_Qf1lDmLFnWMeHB-KQ" class="text-primary" target="_blank">Φιλοσοφία της Πληροφορικής και Εφαρμογές των ΤΠΕ</a><br></p>
+                                    <a href="https://mega.nz/folder/5H03FRwS#Gtp93W9sbHXILa7EIfcqAg" class="text-primary" target="_blank">Διαχείριση Έργου</a><a href="https://mega.nz/filerequest/ZBk80qA-_Pk" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/MKNVBKAJ#zXnkFcB5VGaM2YEPQXvmrg" class="text-primary" target="_blank">Δίκαιο και Κυβερνοηθική</a><a href="https://mega.nz/filerequest/pkzJ7YgDeXk" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/EKNClIxR#4EEk9cPEB6VQeEjd8k1QiA" class="text-primary" target="_blank">Εκπαιδευτική Τεχνολογία και Διδακτική της Πληροφορικής</a><a href="https://mega.nz/filerequest/AL4adL8Mqsk" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/oL0mQTRA#QqRkQjBxazMTozalgpm7sw" class="text-primary" target="_blank">Ιστορία της Τεχνολογίας</a><a href="https://mega.nz/filerequest/rz--iWDNQZQ" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/cDs2kLrL#8uyS7JipfbezjvCra6pF3A" class="text-primary" target="_blank">Πληροφορική και Κοινωνία -Τεχνική της Έκφρασης</a><a href="https://mega.nz/filerequest/xsXumgAo6IA" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a>
+<br><a href="https://mega.nz/folder/5DNGiYSJ#eCtw_Qf1lDmLFnWMeHB-KQ" class="text-primary" target="_blank">Φιλοσοφία της Πληροφορικής και Εφαρμογές των ΤΠΕ</a><a href="https://mega.nz/filerequest/gBwkmwcidCU" 
+   class="btn btn-sm btn-primary ms-2" target="_blank">Upload</a><br></p>
                             </div>
                         </div>
                     </div>
